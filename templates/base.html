@@ -1,0 +1,246 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Heal-Delight | Premium Health Products{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #10b981;
+            --secondary: #3b82f6;
+            --dark: #1f2937;
+            --light: #f3f4f6;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .navbar-scroll {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .brand-logo-wrap {
+            display: block;
+            width: 340px;
+            line-height: 0;
+        }
+
+        .brand-logo-svg {
+            width: 100%;
+            height: 68px;
+            display: block;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="navbar-scroll">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <a href="{% url 'home' %}" aria-label="Heal-Delight Home" class="brand-logo-wrap">
+                        <svg class="brand-logo-svg" viewBox="0 0 700 170" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Heal-Delight logo">
+                            <defs>
+                                <linearGradient id="logoSwoosh" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#B98916"/>
+                                    <stop offset="45%" stop-color="#F4BB2A"/>
+                                    <stop offset="100%" stop-color="#9A8C22"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M170 132C255 101 390 104 520 124" stroke="url(#logoSwoosh)" stroke-width="10" stroke-linecap="round"/>
+                            <text x="22" y="108" font-family="'Brush Script MT', 'Segoe Script', cursive" font-size="132" font-style="italic" fill="#35733A">
+                                Heal-Delight
+                            </text>
+                        </svg>
+                    </a>
+                </div>
+                
+                <div class="flex-1"></div>
+                
+                <!-- Nav Links -->
+                <div class="flex items-center space-x-6">
+                    {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'register' %}
+                        <button id="searchToggle" type="button" class="text-gray-700 hover:text-green-600 transition" aria-label="Search products">
+                            <i class="fas fa-search text-lg"></i>
+                        </button>
+                    {% endif %}
+                    <a href="{% url 'products' %}" class="text-gray-700 hover:text-green-600 transition">Shop</a>
+                    
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'wishlist' %}" class="text-gray-700 hover:text-green-600 transition">
+                            <i class="fas fa-heart"></i> Wishlist
+                            {% if wishlist_count > 0 %}
+                                <span class="ml-1 text-xs font-semibold">({{ wishlist_count }})</span>
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'cart' %}" class="text-gray-700 hover:text-green-600 transition relative">
+                            <i class="fas fa-shopping-cart text-lg"></i>
+                            {% if cart_count > 0 %}
+                                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                    {{ cart_count }}
+                                </span>
+                            {% endif %}
+                        </a>
+                        
+                        <div class="relative group">
+                            <button class="text-gray-700 hover:text-green-600 transition flex items-center space-x-1">
+                                <i class="fas fa-user-circle text-xl"></i>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-300 z-50">
+                                <a href="{% url 'profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">
+                                    <i class="fas fa-user"></i> My Profile
+                                </a>
+                                <a href="{% url 'order_list' %}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">
+                                    <i class="fas fa-package"></i> My Orders
+                                </a>
+                                <a href="{% url 'edit_profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-green-50">
+                                    <i class="fas fa-cog"></i> Settings
+                                </a>
+                                <hr>
+                                <a href="{% url 'logout' %}" class="block px-4 py-2 text-red-600 hover:bg-red-50">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-gray-700 hover:text-green-600 transition">Login</a>
+                        <a href="{% url 'register' %}" class="btn-primary text-white px-4 py-2 rounded-lg">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'register' %}
+                <div id="navSearchBox" class="hidden pb-4">
+                    <form action="{% url 'products' %}" method="get" class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input
+                            type="text"
+                            name="q"
+                            placeholder="Search products..."
+                            value="{{ query }}"
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </nav>
+    
+    <!-- Messages -->
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            {% for message in messages %}
+                <div class="fade-in mb-4 p-4 rounded-lg {% if message.tags %}{{ message.tags }}{% else %}bg-blue-100 text-blue-700{% endif %}">
+                    <i class="fas fa-{% if message.tags == 'bg-green-100 text-green-700' %}check-circle{% elif message.tags == 'bg-red-100 text-red-700' %}times-circle{% else %}info-circle{% endif %} mr-2"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'register' %}
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-gray-300">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- About -->
+                    <div>
+                        <h3 class="text-white font-bold mb-4">About Heal-Delight</h3>
+                        <p class="text-sm">Premium health and wellness products made with natural ingredients for your better lifestyle.</p>
+                    </div>
+                    
+                    <!-- Contact -->
+                    <div>
+                        <h3 class="text-white font-bold mb-4">Contact</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li><i class="fas fa-envelope"></i> support@heal-delight.com</li>
+                            <li><i class="fas fa-map-marker-alt"></i> India</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Social -->
+                    <div>
+                        <h3 class="text-white font-bold mb-4">Follow Us</h3>
+                        <div class="flex space-x-4">
+                            <a href="#" class="hover:text-green-500"><i class="fab fa-facebook"></i></a>
+                            <a href="#" class="hover:text-green-500"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="hover:text-green-500"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="hover:text-green-500"><i class="fab fa-linkedin"></i></a>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="border-gray-700 my-8">
+                
+                <div class="flex justify-between items-center text-sm">
+                    <p>&copy; {{ current_year }} Heal-Delight. All rights reserved.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="hover:text-green-500">Privacy Policy</a>
+                        <a href="#" class="hover:text-green-500">Terms of Service</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    {% endif %}
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const searchToggle = document.getElementById('searchToggle');
+        const navSearchBox = document.getElementById('navSearchBox');
+        if (searchToggle && navSearchBox) {
+            searchToggle.addEventListener('click', function () {
+                navSearchBox.classList.toggle('hidden');
+                const searchInput = navSearchBox.querySelector('input[name=\"q\"]');
+                if (searchInput && !navSearchBox.classList.contains('hidden')) {
+                    searchInput.focus();
+                }
+            });
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

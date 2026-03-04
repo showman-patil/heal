@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile | Heal-Delight{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h1 class="text-3xl font-bold text-gray-900 mb-8">Edit Profile</h1>
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="space-y-6">
+                    <!-- Avatar -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Profile Picture</label>
+                        <div class="flex items-center space-x-4">
+                            <div class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                {% if form.instance.avatar %}
+                                    <img src="{{ form.instance.avatar.url }}" alt="Avatar" class="w-full h-full object-cover">
+                                {% else %}
+                                    <i class="fas fa-user text-3xl text-gray-400"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                {{ form.avatar }}
+                                <p class="text-xs text-gray-600 mt-2">JPG, PNG. Max size 5MB</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Phone -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Phone Number</label>
+                        {{ form.phone }}
+                    </div>
+                    
+                    <!-- Bio -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Bio</label>
+                        {{ form.bio }}
+                    </div>
+                    
+                    <!-- Address -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Address</label>
+                        {{ form.address }}
+                    </div>
+                    
+                    <!-- City, State, Postal Code -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">City</label>
+                            {{ form.city }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">State</label>
+                            {{ form.state }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Postal Code</label>
+                            {{ form.postal_code }}
+                        </div>
+                    </div>
+                    
+                    <!-- Buttons -->
+                    <div class="flex gap-4 pt-6 border-t border-gray-200">
+                        <button type="submit" class="btn-primary text-white px-6 py-2 rounded-lg font-bold">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <a href="{% url 'profile' %}" class="border-2 border-gray-300 text-gray-700 px-6 py-2 rounded-lg font-bold hover:bg-gray-50">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    input[type="text"], input[type="tel"], textarea, input[type="file"] {
+        @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent;
+    }
+</style>
+{% endblock %}

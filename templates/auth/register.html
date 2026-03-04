@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Register | Heal-Delight{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-green-600 to-blue-600 px-6 py-8 text-white text-center">
+            <h1 class="text-3xl font-bold">Heal-Delight</h1>
+            <p class="text-green-100 mt-2">Create Your Account</p>
+        </div>
+        
+        <!-- Form -->
+        <div class="px-6 py-8">
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="mb-3 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+                        {{ form.non_field_errors.0 }}
+                    </div>
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="{% if forloop.last %}mb-4{% else %}mb-3{% endif %}">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">{{ field.label }}</label>
+                        {% if field.name == 'password1' or field.name == 'password2' %}
+                            <div class="relative">
+                                {{ field }}
+                                <button
+                                    type="button"
+                                    class="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-green-600 toggle-password"
+                                    data-target="{{ field.id_for_label }}"
+                                    aria-label="Toggle password visibility"
+                                >
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                        {% if field.errors %}
+                            <p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                <!-- Submit -->
+                <button type="submit" class="w-full bg-gradient-to-r from-green-600 to-green-700 text-white font-bold py-3 rounded-lg hover:shadow-lg transition">
+                    Create Account
+                </button>
+            </form>
+            
+            <!-- Links -->
+            <div class="mt-6 text-center">
+                <p class="text-gray-600">
+                    Already have an account?
+                    <a href="{% url 'login' %}" class="text-green-600 font-bold hover:underline">
+                        Login here
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const passwordToggles = document.querySelectorAll('.toggle-password');
+    passwordToggles.forEach(function (toggle) {
+        toggle.addEventListener('click', function () {
+            const targetId = toggle.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            const icon = toggle.querySelector('i');
+            if (!input || !icon) {
+                return;
+            }
+            const showPassword = input.type === 'password';
+            input.type = showPassword ? 'text' : 'password';
+            icon.className = showPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+        });
+    });
+</script>
+{% endblock %}

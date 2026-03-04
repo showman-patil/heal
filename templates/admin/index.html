@@ -1,0 +1,188 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static admin_extras %}
+
+{% block content %}
+{% get_admin_stats as stats %}
+
+<div class="admin-dashboard">
+    <div class="admin-hero">
+        <h2>Store Snapshot</h2>
+        <p>Live business numbers and operational alerts from your website database.</p>
+    </div>
+
+    <div class="admin-stats-grid">
+        <div class="stat-card">
+            <span class="stat-icon">P</span>
+            <span class="stat-label">Products</span>
+            <span class="stat-value">{{ stats.products }}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">C</span>
+            <span class="stat-label">Categories</span>
+            <span class="stat-value">{{ stats.categories }}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">O</span>
+            <span class="stat-label">Orders</span>
+            <span class="stat-value">{{ stats.orders }}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">U</span>
+            <span class="stat-label">Customers</span>
+            <span class="stat-value">{{ stats.customers }}</span>
+        </div>
+        <div class="stat-card stat-card-revenue">
+            <span class="stat-icon">R</span>
+            <span class="stat-label">Total Revenue</span>
+            <span class="stat-value">&#8377;{{ stats.revenue }}</span>
+        </div>
+    </div>
+
+    <div class="admin-insight-grid">
+        <section class="insight-card">
+            <h3>Operational Status</h3>
+            <ul class="insight-list">
+                <li>
+                    <span>Pending Orders</span>
+                    <strong>{{ stats.pending_orders }}</strong>
+                </li>
+                <li>
+                    <span>Processing Orders</span>
+                    <strong>{{ stats.processing_orders }}</strong>
+                </li>
+                <li>
+                    <span>Low Stock Products</span>
+                    <strong>{{ stats.low_stock_products }}</strong>
+                </li>
+                <li>
+                    <span>Out of Stock</span>
+                    <strong>{{ stats.out_of_stock_products }}</strong>
+                </li>
+            </ul>
+        </section>
+
+        <section class="insight-card">
+            <h3>Quick Actions</h3>
+            <div class="quick-links">
+                <a href="{% url 'home' %}" target="_blank" rel="noopener">Open Website</a>
+                <a href="{% url 'products' %}" target="_blank" rel="noopener">Open Products Page</a>
+                <a href="{% url 'admin:store_product_add' %}">Add Product</a>
+                <a href="{% url 'admin:store_order_changelist' %}?status__exact=pending">Review Pending Orders</a>
+                <a href="{% url 'admin:store_product_changelist' %}?status__exact=out_of_stock">Restock Products</a>
+            </div>
+        </section>
+    </div>
+
+    <div class="admin-insight-grid">
+        <section class="insight-card">
+            <h3>Recent Orders</h3>
+            {% if stats.recent_orders %}
+                <table class="insight-table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>User</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in stats.recent_orders %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'admin:store_order_change' order.id %}">{{ order.order_number }}</a>
+                                </td>
+                                <td>{{ order.user.username }}</td>
+                                <td>{{ order.get_status_display }}</td>
+                                <td>&#8377;{{ order.total_price }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="empty-state">No orders yet.</p>
+            {% endif %}
+        </section>
+
+        <section class="insight-card">
+            <h3>Low Stock Watchlist</h3>
+            {% if stats.low_stock_items %}
+                <table class="insight-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in stats.low_stock_items %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'admin:store_product_change' product.id %}">{{ product.name }}</a>
+                                </td>
+                                <td>{{ product.category.name }}</td>
+                                <td>{{ product.stock }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="empty-state">All products have healthy stock.</p>
+            {% endif %}
+        </section>
+    </div>
+
+    <section class="insight-card">
+        <h3>Top Categories</h3>
+        {% if stats.top_categories %}
+            <div class="category-pills">
+                {% for category in stats.top_categories %}
+                    <a href="{% url 'admin:store_product_changelist' %}?category__id__exact={{ category.id }}" class="category-pill">
+                        {{ category.name }} ({{ category.total_products }})
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-state">No categories available.</p>
+        {% endif %}
+    </section>
+
+    <div class="module-grid">
+        {% if app_list %}
+            {% for app in app_list %}
+                <section class="app-module module">
+                    <h3>{{ app.name }}</h3>
+                    <table>
+                        <tbody>
+                            {% for model in app.models %}
+                                <tr class="model-{{ model.object_name|lower }}">
+                                    <th scope="row">
+                                        {% if model.admin_url %}
+                                            <a href="{{ model.admin_url }}">{{ model.name }}</a>
+                                        {% else %}
+                                            {{ model.name }}
+                                        {% endif %}
+                                    </th>
+                                    <td>
+                                        {% if model.add_url %}
+                                            <a href="{{ model.add_url }}" class="addlink">{% translate 'Add' %}</a>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if model.admin_url %}
+                                            <a href="{{ model.admin_url }}" class="changelink">{% translate 'Manage' %}</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </section>
+            {% endfor %}
+        {% else %}
+            <p>{% translate "You don't have permission to view or edit anything." %}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
